@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        /* Meget simpel opsætning */
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .search-section {
+            margin-bottom: 30px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .file-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: hsl(0, 0%, 95%);
+            border-radius: 6px 6px 6px 6px;
+            box-shadow: 0px 0px 1.5px;
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            background-color: #eee;
+            padding: 5px 10px;
+            text-decoration: none;
+            color: black;
+            border: 1px solid #999;
+        }
+
+        #WindowsDownload:active {
+            cursor: progress;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Program Downloads</h1>
+
+    <div class="search-section">
+        <input type="text" id="searchInput" onkeyup="filterFiles()" placeholder="Search...">
+    </div>
+
+    <ul class="file-list" id="fileList">
+        <li class="file-item">
+            <span class="file-name">Install Wizard  - <i>[Experimental]</i></span>
+            <a href="Wizards/TestWizard.py" class="download-btn" id="WindowsDownload" download>Download (Version 1.0)</a>
+        </li>
+        <li class="file-item">
+            <span class="file-name">Install Wizard  - <i>[Calculator]</i></span>
+            <a href="downloads/program.exe" class="download-btn" id="WindowsDownload" download>Download</a>
+        </li>
+    </ul>
+
+    <script>
+        function filterFiles() {
+            // Hent tekst fra søgefelt
+            let input = document.getElementById('searchInput');
+            let filter = input.value.toLowerCase();
+            let ul = document.getElementById("fileList");
+            let li = ul.getElementsByTagName('li');
+
+            // Gennemgå alle liste-elementer og skjul dem, der ikke matcher
+            for (let i = 0; i < li.length; i++) {
+                let fileName = li[i].getElementsByClassName('file-name')[0];
+                let txtValue = fileName.textContent || fileName.innerText;
+                
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    li[i].style.display = "";
+                } else {
+                    li[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+
+</body>
+</html>
