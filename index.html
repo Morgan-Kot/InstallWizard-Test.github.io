@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title></title>
     <style>
-        /* Meget simpel opsætning */
+        /* Popup overlay og boks */
         body {
             font-family: sans-serif;
             max-width: 800px;
@@ -36,7 +36,7 @@
             justify-content: space-between;
             align-items: center;
             background-color: hsl(0, 0%, 95%);
-            border-radius: 6px 6px 6px 6px;
+            border-radius: 6px;
             box-shadow: 0px 0px 1.5px;
             margin-bottom: 20px;
         }
@@ -49,8 +49,68 @@
             border: 1px solid #999;
         }
 
-        #WindowsDownload:active {
-            cursor: progress;
+        #overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #overlay.active {
+            display: flex;
+        }
+
+        #popup {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 24px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        #popup p {
+            margin: 0 0 8px;
+        }
+
+        #popup .popup-title {
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        #popup .popup-desc {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .popup-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .popup-buttons button {
+            padding: 6px 18px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 13px;
+            border: 1px solid #999;
+        }
+
+        #btnCancel {
+            background: #eee;
+        }
+
+        #btnContinue {
+            background: #ffe0e0;
+            border-color: #d00;
+            color: #900;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -64,28 +124,68 @@
 
     <ul class="file-list" id="fileList">
         <li class="file-item">
-            <span class="file-name">Install Wizard  - <i>[Experimental]</i></span>
-            <a href="Wizards/TestWizard.py" class="download-btn" id="WindowsDownload" download>Download (Version 1.0)</a>
+            <span class="file-name">Install Wizard - <i>[Experimental]</i></span>
+            <a href="Wizards/TestWizard.py" class="download-btn" id="DiffFile" download>Download (Version 1.0)</a>
         </li>
         <li class="file-item">
-            <span class="file-name">Install Wizard  - <i>[Calculator]</i></span>
-            <a href="downloads/program.exe" class="download-btn" id="WindowsDownload" download>Download</a>
+            <span class="file-name">Install Wizard - <i>[Calculator]</i></span>
+            <a href="downloads/program.exe" class="download-btn" download>Download</a>
         </li>
     </ul>
 
+    <!-- Popup overlay -->
+    <div id="overlay">
+        <div id="popup">
+            <p class="popup-title">&#9888; Warning</p>
+            <p class="popup-desc">This is a Python (.py) File. Please make sure you have Python 3.14 Installed on your Device</p>
+            <div class="popup-buttons">
+                <button id="btnCancel">Cancel</button>
+                <button id="btnContinue">Continue</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Håndterer DiffFile advarsel popup og filtrering
+
+        let pendingDownload = null;
+
+        document.querySelectorAll('a[id="DiffFile"]').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                pendingDownload = this;
+                document.getElementById('overlay').classList.add('active');
+            });
+        });
+
+        document.getElementById('btnCancel').addEventListener('click', function() {
+            pendingDownload = null;
+            document.getElementById('overlay').classList.remove('active');
+        });
+
+        document.getElementById('btnContinue').addEventListener('click', function() {
+            document.getElementById('overlay').classList.remove('active');
+            if (pendingDownload) {
+                const tempLink = document.createElement('a');
+                tempLink.href = pendingDownload.href;
+                tempLink.download = pendingDownload.download || '';
+                document.body.appendChild(tempLink);
+                tempLink.click();
+                document.body.removeChild(tempLink);
+                pendingDownload = null;
+            }
+        });
+
         function filterFiles() {
-            // Hent tekst fra søgefelt
             let input = document.getElementById('searchInput');
             let filter = input.value.toLowerCase();
             let ul = document.getElementById("fileList");
             let li = ul.getElementsByTagName('li');
 
-            // Gennemgå alle liste-elementer og skjul dem, der ikke matcher
             for (let i = 0; i < li.length; i++) {
                 let fileName = li[i].getElementsByClassName('file-name')[0];
                 let txtValue = fileName.textContent || fileName.innerText;
-                
+
                 if (txtValue.toLowerCase().indexOf(filter) > -1) {
                     li[i].style.display = "";
                 } else {
